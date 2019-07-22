@@ -43,9 +43,17 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private float fireRate = 0.5f;
 
-    private float nextFire = 0.0f;
+    private Coroutine spawnShotsRoutine;
 
     private IDictionary<RestrictPositionMode, Action> restrictPostionModeDict;
+
+    private Vector3 position
+    {
+        get { return transform.position; }
+        set { transform.position = value; }
+    }
+
+    private Vector3 velocity { get { return rigidBody.velocity; } }
 
 
     private void Start()
@@ -56,7 +64,7 @@ public class PlayerController : MonoBehaviour
             { RestrictPositionMode.PeriodicBC, RetrictPositionByPeriodicBC }
         };
 
-        StartSpawnShot();
+        StartSpawnShots();
     }
 
     private void FixedUpdate()
@@ -64,7 +72,7 @@ public class PlayerController : MonoBehaviour
         Accelerate();
         RestrictPosition();
         Tilt();
-        LogPosition();
+        //LogPosition();
         //LogVelocity();
     }
 
@@ -90,50 +98,62 @@ public class PlayerController : MonoBehaviour
 
     private void Tilt()
     {
-        Vector3 velocity = rigidBody.velocity;
-        transform.rotation = Quaternion.Euler(0.0f, 0.0f, velocity.x * tilt);
+        Vector3 myVelocity = velocity;
+        transform.rotation = Quaternion.Euler(0.0f, 0.0f, myVelocity.x * tilt);
     }
 
-    private void SpawnShot()
-    {
-        if (Input.GetButton("Fire1") && Time.time > nextFire)
-        {
-            nextFire = Time.time + fireRate;
-            GameObject newShot = Instantiate(shot, shotSpawn.position, shotSpawn.rotation);
 
-            Rigidbody newShotRigidBody = newShot.GetComponent<Rigidbody>();
-            if (newShotRigidBody != null)
-            {
-                newShotRigidBody.velocity = rigidBody.velocity;
-            }
+    #region spawn shots
+
+    private void StartSpawnShots()
+    {
+        spawnShotsRoutine = StartCoroutine(SpawnShots());
+    }
+
+    private void EndSpawnShots()
+    {
+        if (spawnShotsRoutine != null)
+        {
+            StopCoroutine(spawnShotsRoutine);
+            spawnShotsRoutine = null;
         }
     }
 
     private IEnumerator SpawnShots()
     {
+        float nextFire = 0.0f;
+
         while (true)
         {
-            yield return null;
-            SpawnShot();
-        }
-    }
+            if (Input.GetButton("Fire1") && Time.time > nextFire)
+            {
+                nextFire = Time.time + fireRate;
+                GameObject newShot = Instantiate(shot, shotSpawn.position, shotSpawn.rotation);
 
-    private void StartSpawnShot()
-    {
-        StartCoroutine(SpawnShots());
-    }
+                Rigidbody newShotRigidBody = newShot.GetComponent<Rigidbody>();
+                if (newShotRigidBody != null)
+                {
+                    newShotRigidBody.velocity += velocity;
+                }
+            }
+
+            yield return null;
+        }
+    }       
+
+    #endregion
 
 
     #region log
 
     private void LogPosition()
     {
-        Debug.Log("position: " + transform.position);
+        Debug.Log("position: " + position);
     }
 
     private void LogVelocity()
     {        
-        Debug.Log("velocity: " + rigidBody.velocity);
+        Debug.Log("velocity: " + velocity);
     }    
 
     #endregion
@@ -143,8 +163,8 @@ public class PlayerController : MonoBehaviour
 
     public void RetrictPositionByClamp()
     {
-        Vector3 currentPosition = transform.position;
-        transform.position = new Vector3
+        Vector3 currentPosition = position;
+        position = new Vector3
         (
             Mathf.Clamp(currentPosition.x, boundary.XMin, boundary.XMax),
             0.0f,
@@ -154,7 +174,7 @@ public class PlayerController : MonoBehaviour
 
     private void RetrictPositionByPeriodicBC()
     {
-        Vector3 currentPosition = transform.position;  // cloned
+        Vector3 currentPosition = position;  // cloned
         float adjustedX = currentPosition.x;
         float adjustedZ = currentPosition.z;        
 
@@ -182,7 +202,7 @@ public class PlayerController : MonoBehaviour
             adjustedZ = boundary.ZMin + (currentPosition.z - boundary.ZMax);
         }
 
-        transform.position = new Vector3
+        position = new Vector3
         (
             adjustedX,
             0.0f,
