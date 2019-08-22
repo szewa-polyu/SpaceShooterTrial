@@ -1,5 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class GameController : MonoBehaviour
 {
@@ -21,12 +23,51 @@ public class GameController : MonoBehaviour
     [SerializeField]
     private float waveWait;
 
+    [SerializeField]
+    private Text scoreText;
+
+    [SerializeField]
+    private Text restartText;
+
+    [SerializeField]
+    private Text gameOverText;
+
+    private int _score;
+    private int score
+    {
+        get { return _score; }
+        set
+        {
+            _score = value;
+            UpdateScore();
+        }
+    }
+
+    private bool isGameOver;
+    private bool isRestart;
+   
     
     private void Start()
     {
+        isGameOver = false;
+        isRestart = false;
+        restartText.text = "";
+        gameOverText.text = "";
+        score = 0;
+        UpdateScore();
         StartCoroutine(SpawnWaves());
     }
 
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            SceneManager.LoadScene("Main");
+        }
+    }
+
+
+    #region privates
 
     private IEnumerator SpawnWaves()
     {
@@ -41,6 +82,36 @@ public class GameController : MonoBehaviour
                 yield return new WaitForSeconds(spawnWait);
             }
             yield return new WaitForSeconds(waveWait);
+
+            if (isGameOver)
+            {
+                restartText.text = "Press 'R' to restart";
+                isRestart = true;
+                break;
+            }
         }
     }
+
+    private void UpdateScore()
+    {
+        scoreText.text = $"Score: {score}";
+    }
+
+    #endregion
+
+
+    #region publics
+
+    public void AddScore(int increment)
+    {
+        score += increment;
+    }
+
+    public void GameOver()
+    {
+        gameOverText.text = "Game over!";
+        isGameOver = true;
+    }
+
+    #endregion
 }

@@ -43,6 +43,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private float fireRate = 0.5f;
 
+    [SerializeField]
+    private AudioSource weaponAudio;
+
     private Coroutine spawnShotsRoutine;
 
     private IDictionary<RestrictPositionMode, Action> restrictPostionModeDict;
@@ -135,6 +138,8 @@ public class PlayerController : MonoBehaviour
                 {
                     newShotRigidBody.velocity += velocity;
                 }
+
+                weaponAudio.Play();
             }
 
             yield return null;
