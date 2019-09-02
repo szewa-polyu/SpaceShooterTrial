@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class GameController : MonoBehaviour
 {
     [SerializeField]
-    private GameObject hazard;
+    private GameObject[] hazards;
 
     [SerializeField]
     private Vector3 spawnValues;
@@ -60,9 +60,12 @@ public class GameController : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.R))
+        if (isRestart)
         {
-            SceneManager.LoadScene("Main");
+            if (Input.GetKeyDown(KeyCode.R))
+            {
+                SceneManager.LoadScene("Main");
+            }
         }
     }
 
@@ -76,6 +79,7 @@ public class GameController : MonoBehaviour
         {
             for (int i = 0; i < hazardCount; i++)
             {
+                GameObject hazard = hazards[Random.Range(0, hazards.Length)];
                 Vector3 spawnPosition = new Vector3(Random.Range(-spawnValues.x, spawnValues.x), spawnValues.y, spawnValues.z);
                 Quaternion spawnRotation = Quaternion.identity;
                 GameObject newHazard = Instantiate(hazard, spawnPosition, spawnRotation);

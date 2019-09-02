@@ -4,17 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public enum RestrictPositionMode
-{
-    Clamp,
-    PeriodicBC
-}
 
-[Serializable]
-public struct Boundary
-{
-    public float XMin, XMax, ZMin, ZMax;
-}
 
 
 public class PlayerController : MonoBehaviour
@@ -38,10 +28,11 @@ public class PlayerController : MonoBehaviour
     public GameObject shot;
 
     [SerializeField]
-    public Transform shotSpawn;
+    public Transform[] shotSpawns;
 
     [SerializeField]
-    private float fireRate = 0.5f;
+    [Range(0.01f, Single.MaxValue)]
+    private float firePeriod = 0.5f;
 
     [SerializeField]
     private AudioSource weaponAudio;
@@ -130,14 +121,16 @@ public class PlayerController : MonoBehaviour
         {
             if (Input.GetButton("Fire1") && Time.time > nextFire)
             {
-                nextFire = Time.time + fireRate;
-                GameObject newShot = Instantiate(shot, shotSpawn.position, shotSpawn.rotation);
-
-                Rigidbody newShotRigidBody = newShot.GetComponent<Rigidbody>();
-                if (newShotRigidBody != null)
+                nextFire = Time.time + firePeriod;
+                foreach (var shotSpawn in shotSpawns)
                 {
-                    newShotRigidBody.velocity += velocity;
-                }
+                    GameObject newShot = Instantiate(shot, shotSpawn.position, shotSpawn.rotation);
+                    Rigidbody newShotRigidBody = newShot.GetComponent<Rigidbody>();
+                    if (newShotRigidBody != null)
+                    {
+                        newShotRigidBody.velocity += velocity;
+                    }
+                }                               
 
                 weaponAudio.Play();
             }
