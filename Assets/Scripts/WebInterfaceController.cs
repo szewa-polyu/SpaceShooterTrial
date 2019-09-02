@@ -13,7 +13,18 @@ public class WebInterfaceController : MonoBehaviour
     private void Update()
     {
         this.SendPlayerPositionAsString();
-        this.SendPlayerPositionAsVector();
+        this.SendPlayerPositionAsVector();        
+    }
+
+
+    private string GetPlayerPositionAsString()
+    {
+        return player != null ? player.position.ToString() : Vector3.zero.ToString();
+    }
+
+    private Vector3 GetPlayerPositionAsVector()
+    {
+        return player != null ? player.position : Vector3.zero;
     }
 
 
@@ -36,15 +47,15 @@ public class WebInterfaceController : MonoBehaviour
     
     private void SendPlayerPositionAsString()
     {
-        WebInterfaceController.SendPlayerPositionAsString(player.position.ToString());
+        WebInterfaceController.SendPlayerPositionAsString(GetPlayerPositionAsString());
     }
 
     [DllImport("__Internal")]
-    private static extern void SendPlayerPositionAsVector(string position);
+    private static extern void SendPlayerPositionAsVector(Vector3 position);
 
     private void SendPlayerPositionAsVector()
     {
-        WebInterfaceController.SendPlayerPositionAsVector(player.position.ToString());
+        WebInterfaceController.SendPlayerPositionAsVector(GetPlayerPositionAsVector());
     }
 
     #endregion
