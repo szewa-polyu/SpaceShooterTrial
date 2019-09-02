@@ -25,8 +25,7 @@ public class EvasiveManeuver : MonoBehaviour
 
     private float targetManeuver;
 
-    private Transform player;
-    private bool isPlayerExist;
+    private Transform player;    
 
     [SerializeField]
     private Rigidbody rigidBody;
@@ -58,9 +57,8 @@ public class EvasiveManeuver : MonoBehaviour
 
     private void Start()
     {
-        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
-        isPlayerExist = playerObj != null;
-        if (isPlayerExist)
+        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");        
+        if (playerObj != null)
         {
             player = playerObj.transform;
         }
@@ -181,7 +179,7 @@ public class EvasiveManeuver : MonoBehaviour
         while (true)
         {
             //targetManeuver = randomRange(1, dodge) * -Mathf.Sign(transform.position.x);
-            targetManeuver = isPlayerExist ? player.position.x : randomRange(1, dodge) * -Mathf.Sign(transform.position.x);
+            targetManeuver = player != null ? player.position.x : randomRange(1, dodge) * -Mathf.Sign(transform.position.x);
             yield return new WaitForSeconds(randomRange(maneuverTime.x, maneuverTime.y));
             targetManeuver = 0;
             yield return new WaitForSeconds(randomRange(maneuverWait.x, maneuverWait.y));
