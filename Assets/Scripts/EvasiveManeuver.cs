@@ -167,8 +167,8 @@ public class EvasiveManeuver : MonoBehaviour
     {
         if (evadeCoroutine != null)
         {
-
             StopCoroutine(evadeCoroutine);
+            evadeCoroutine = null;
         }
     }
 
